@@ -1,0 +1,527 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "title" : "H Plus Sports Company API",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "tags" : [ {
+    "name" : "Blog",
+    "description" : "Blog post operations"
+  }, {
+    "name" : "Products",
+    "description" : "Product operations"
+  }, {
+    "name" : "Customer",
+    "description" : "Customer operations"
+  }, {
+    "name" : "Test",
+    "description" : "Test operations"
+  } ],
+  "paths" : {
+    "/ping" : {
+      "get" : {
+        "tags" : [ "Test" ],
+        "responses" : {
+          "200" : {
+            "description" : "Returns if online",
+            "content" : {
+              "text/plain; charset=utf-8" : {
+                "example" : "The server is online"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/order" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Order placed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Order"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "password" : [ "write" ]
+        } ]
+      }
+    },
+    "/product/{productId}" : {
+      "get" : {
+        "tags" : [ "Products" ],
+        "parameters" : [ {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer",
+            "example" : 1
+          }
+        }, {
+          "name" : "customer-security-header",
+          "in" : "header",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Specific product in catalog",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_500"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product" : {
+      "get" : {
+        "tags" : [ "Products" ],
+        "parameters" : [ {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "Page number to return",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "example" : 1
+          }
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of results in the page",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "maximum" : 100,
+            "type" : "integer",
+            "example" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of products in catalog",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Product"
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_500"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Products" ],
+        "description" : "Add a product to catalog",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "The product has been created"
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_500"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "password" : [ "write" ]
+        } ]
+      }
+    },
+    "/blog/create" : {
+      "post" : {
+        "tags" : [ "Blog" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BlogPost"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Blog post has been created"
+          }
+        }
+      }
+    },
+    "/blog" : {
+      "get" : {
+        "tags" : [ "Blog" ],
+        "responses" : {
+          "200" : {
+            "description" : "List of blog articles",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "allOf" : [ {
+                      "$ref" : "#/components/schemas/BlogPost"
+                    }, {
+                      "properties" : {
+                        "comments" : {
+                          "type" : "array",
+                          "items" : {
+                            "properties" : {
+                              "id" : {
+                                "type" : "integer",
+                                "example" : 1
+                              },
+                              "author" : {
+                                "type" : "string",
+                                "example" : "Commenter"
+                              },
+                              "postedOn" : {
+                                "type" : "string",
+                                "format" : "date"
+                              },
+                              "comment" : {
+                                "type" : "string",
+                                "example" : "This is my comment"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } ]
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/inline_response_500"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "description" : "List all customers",
+        "responses" : {
+          "200" : {
+            "description" : "Search results",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Customer"
+                  },
+                  "x-content-type" : "application/json"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Order" : {
+        "required" : [ "customer", "id", "itemsPurchased", "orderDate", "quantity" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "338"
+          },
+          "itemsPurchased" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Product"
+            }
+          },
+          "quantity" : {
+            "type" : "integer",
+            "example" : 3
+          },
+          "orderDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/Customer"
+          }
+        },
+        "example" : {
+          "quantity" : 3,
+          "itemsPurchased" : [ {
+            "imageLink" : "https://images.pexels.com/photos/2477379/pexels-photo-2477379.jpeg",
+            "name" : "Lemon Water",
+            "description" : "I am tasty water",
+            "id" : 121,
+            "imageTitle" : "Image of Lemon Water"
+          }, {
+            "imageLink" : "https://images.pexels.com/photos/2477379/pexels-photo-2477379.jpeg",
+            "name" : "Lemon Water",
+            "description" : "I am tasty water",
+            "id" : 121,
+            "imageTitle" : "Image of Lemon Water"
+          } ],
+          "id" : "338",
+          "orderDate" : "2000-01-23T04:56:07.000+00:00",
+          "customer" : {
+            "firstName" : "Joe",
+            "lastName" : "Schmoe",
+            "phone" : "123-456-7890",
+            "id" : "isjwyqndj"
+          }
+        }
+      },
+      "Customer" : {
+        "required" : [ "firstName", "id", "lastName" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "isjwyqndj"
+          },
+          "firstName" : {
+            "type" : "string",
+            "example" : "Joe"
+          },
+          "lastName" : {
+            "type" : "string",
+            "example" : "Schmoe"
+          },
+          "phone" : {
+            "type" : "string",
+            "example" : "123-456-7890"
+          }
+        },
+        "example" : {
+          "firstName" : "Joe",
+          "lastName" : "Schmoe",
+          "phone" : "123-456-7890",
+          "id" : "isjwyqndj"
+        }
+      },
+      "Product" : {
+        "required" : [ "id", "name" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "example" : 121
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Lemon Water"
+          },
+          "description" : {
+            "type" : "string",
+            "example" : "I am tasty water"
+          },
+          "imageTitle" : {
+            "type" : "string",
+            "example" : "Image of Lemon Water"
+          },
+          "imageLink" : {
+            "type" : "string",
+            "example" : "https://images.pexels.com/photos/2477379/pexels-photo-2477379.jpeg"
+          }
+        },
+        "example" : {
+          "imageLink" : "https://images.pexels.com/photos/2477379/pexels-photo-2477379.jpeg",
+          "name" : "Lemon Water",
+          "description" : "I am tasty water",
+          "id" : 121,
+          "imageTitle" : "Image of Lemon Water"
+        }
+      },
+      "BlogPost" : {
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string",
+            "example" : "My Article"
+          },
+          "postedOn" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "author" : {
+            "type" : "string",
+            "example" : "Cheyenne M"
+          },
+          "category" : {
+            "type" : "string",
+            "example" : "Health"
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BlogPost_tags"
+            }
+          },
+          "content" : {
+            "type" : "string",
+            "example" : "This is my entire blog post"
+          }
+        }
+      },
+      "inline_response_500" : {
+        "type" : "object",
+        "properties" : {
+          "statusCode" : {
+            "type" : "string",
+            "example" : "500"
+          },
+          "message" : {
+            "type" : "string",
+            "example" : "This is an error"
+          }
+        }
+      },
+      "BlogPost_tags" : {
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "example" : 1
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "healthy"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "500ApiError" : {
+        "description" : "Unexpected error",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/inline_response_500"
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "PageNumber" : {
+        "name" : "pageNumber",
+        "in" : "query",
+        "description" : "Page number to return",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "integer",
+          "example" : 1
+        }
+      },
+      "PageSize" : {
+        "name" : "pageSize",
+        "in" : "query",
+        "description" : "Number of results in the page",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "maximum" : 100,
+          "type" : "integer",
+          "example" : 10
+        }
+      }
+    },
+    "securitySchemes" : {
+      "password" : {
+        "type" : "oauth2",
+        "flows" : {
+          "password" : {
+            "tokenUrl" : "http://example.com/oauth/token",
+            "scopes" : {
+              "write" : "allows modifying resources",
+              "read" : "allows reading resources"
+            }
+          }
+        }
+      }
+    }
+  }
+}
